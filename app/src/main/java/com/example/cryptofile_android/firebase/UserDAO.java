@@ -67,4 +67,35 @@ public class UserDAO {
         return future;
     }
 
+    public CompletableFuture<UserInfo> getUserById(String userId) {
+        CompletableFuture<UserInfo> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_USERS)
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        UserInfo user = documentSnapshot.toObject(UserInfo.class);
+                        future.complete(user);
+                    } else {
+                        future.complete(null);
+                    }
+                })
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<Void> updateUserInfo(String userId, String fullName, String email) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_USERS)
+                .document(userId)
+                .update("fullName", fullName, "email", email)
+                .addOnSuccessListener(aVoid -> future.complete(null))
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
 }

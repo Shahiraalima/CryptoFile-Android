@@ -29,8 +29,8 @@
         <activity android:name=".ui.user.UserHomeActivity"/>
         <activity android:name=".ui.encryption.EncryptFileActivity"/>
         <activity android:name=".ui.encryption.DecryptFileActivity"/>
-
-
+        <activity android:name=".ui.user.UserProfileActivity"/>
+        <activity android:name=".ui.user.UserActivityLogsActivity"/>
     </application>
 
 </manifest>

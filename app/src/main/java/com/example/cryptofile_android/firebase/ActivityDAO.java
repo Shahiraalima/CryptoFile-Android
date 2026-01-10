@@ -52,6 +52,38 @@ public class ActivityDAO {
     }
 
 
+    public CompletableFuture<List<ActivityLog>> getLogsByUserId(String userId, int limit) {
+        CompletableFuture<List<ActivityLog>> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_LOGS)
+                .whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(limit)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<ActivityLog> logs = querySnapshot.toObjects(ActivityLog.class);
+                    future.complete(logs);
+                })
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<Integer> getLogsCountByUserId(String userId) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_LOGS)
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(querySnapshot ->
+                        future.complete(querySnapshot.size()))
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+
+
 
 
 

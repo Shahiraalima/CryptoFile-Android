@@ -205,39 +205,85 @@ public class UserHomeActivity extends AppCompatActivity {
     }
 
     private View createLogRow(ActivityLog log) {
-        View rowView = LayoutInflater.from(this).inflate(R.layout.item_activity_log, activityLogsContainer, false);
+        View rowView = LayoutInflater.from(this).inflate(R.layout.item_activity_log2, activityLogsContainer, false);
 
-        TextView actionIcon = rowView.findViewById(R.id.action_icon);
-        TextView fileNameText = rowView.findViewById(R.id.file_name_text);
-        TextView timeText = rowView.findViewById(R.id.time_text);
-        TextView statusText = rowView.findViewById(R.id.status_text);
-        View statusBadge = rowView.findViewById(R.id.status_badge);
+        TextView statusIcon = rowView.findViewById(R.id.status_icon);
+        TextView fileName = rowView.findViewById(R.id.file_name);
+        TextView operationBadge = rowView.findViewById(R.id.operation_badge);
+        TextView fileSize = rowView.findViewById(R.id.file_size);
+        TextView dateTime = rowView.findViewById(R.id.date_time);
+        TextView resultBadge = rowView.findViewById(R.id.result_badge);
 
-        if ("ENCRYPT".equalsIgnoreCase(log.getAction())) {
-            actionIcon.setText("🔒");
-        } else if ("DECRYPT".equalsIgnoreCase(log.getAction())) {
-            actionIcon.setText("🔓");
-        } else {
-            actionIcon.setText("📄");
+        switch (log.getStatus()) {
+            case "SUCCESS":
+                statusIcon.setText("✓");
+                statusIcon.setTextColor(android.graphics.Color.parseColor("#27ae60"));
+                break;
+            case "FAILED":
+                statusIcon.setText("✗");
+                statusIcon.setTextColor(android.graphics.Color.parseColor("#e74c3c"));
+                break;
+            case "CANCELLED":
+                statusIcon.setText("○");
+                statusIcon.setTextColor(android.graphics.Color.parseColor("#95a5a6"));
+                break;
         }
 
-        String actionText = "ENCRYPT".equalsIgnoreCase(log.getAction()) ? "encrypted" : "decrypted";
-        String statusMessage = "SUCCESS".equalsIgnoreCase(log.getStatus()) ? "successfully" : "failed";
+        fileName.setText(log.getFileName() != null ? log.getFileName() : "Unknown");
+
+        String action = log.getAction();
+        if ("ENCRYPT".equalsIgnoreCase(action)) {
+            operationBadge.setText("🔒 Encrypt");
+            operationBadge.setBackgroundColor(android.graphics.Color.parseColor("#E3F2FD"));
+            operationBadge.setTextColor(android.graphics.Color.parseColor("#1976D2"));
+        } else if ("DECRYPT".equalsIgnoreCase(action)) {
+            operationBadge.setText("🔓 Decrypt");
+            operationBadge.setBackgroundColor(android.graphics.Color.parseColor("#E8F5E9"));
+            operationBadge.setTextColor(android.graphics.Color.parseColor("#388E3C"));
+        } else if ("RE-ENCRYPT".equalsIgnoreCase(action)) {
+            operationBadge.setText("🔄 Re-encrypt");
+            operationBadge.setBackgroundColor(android.graphics.Color.parseColor("#FFF3E0"));
+            operationBadge.setTextColor(android.graphics.Color.parseColor("#F57C00"));
+        } else {
+            operationBadge.setText(action);
+            operationBadge.setBackgroundColor(android.graphics.Color.parseColor("#F5F5F5"));
+            operationBadge.setTextColor(android.graphics.Color.parseColor("#757575"));
+        }
+
+        fileSize.setText(formatFileSize(log.getFileSize()));
 
         if (log.getTimestamp() != null) {
-            timeText.setText(formatTimeAgo(log.getTimestamp()));
+            dateTime.setText(formatTimeAgo(log.getTimestamp()));
+        } else {
+            dateTime.setText("-");
         }
 
-        statusText.setText(log.getStatus());
-        if ("SUCCESS".equalsIgnoreCase(log.getStatus())) {
-            statusBadge.setBackgroundResource(R.drawable.bg_status_success);
-        } else if ("FAILED".equalsIgnoreCase(log.getStatus())) {
-            statusBadge.setBackgroundResource(R.drawable.bg_status_failed);
-        } else {
-            statusBadge.setBackgroundResource(R.drawable.bg_status_cancelled);
+        switch (log.getStatus()) {
+            case "SUCCESS":
+                resultBadge.setText("Success");
+                resultBadge.setBackgroundColor(android.graphics.Color.parseColor("#d4edda"));
+                resultBadge.setTextColor(android.graphics.Color.parseColor("#155724"));
+                break;
+            case "FAILED":
+                resultBadge.setText("Failed");
+                resultBadge.setBackgroundColor(android.graphics.Color.parseColor("#fff3cd"));
+                resultBadge.setTextColor(android.graphics.Color.parseColor("#856404"));
+                break;
+            case "CANCELLED":
+                resultBadge.setText("Cancelled");
+                resultBadge.setBackgroundColor(android.graphics.Color.parseColor("#f8d7da"));
+                resultBadge.setTextColor(android.graphics.Color.parseColor("#721c24"));
+                break;
         }
 
         return rowView;
+    }
+
+    private String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(1024));
+        String pre = "KMGTPE".charAt(exp - 1) + "";
+        return String.format(Locale.US, "%.1f %sB", bytes / Math.pow(1024, exp), pre);
     }
 
     private String formatTimeAgo(Date timestamp) {
