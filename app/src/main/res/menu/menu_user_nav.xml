@@ -11,9 +11,6 @@
             android:id="@+id/nav_decrypt"
             android:title="@string/decrypt_file" />
         <item
-            android:id="@+id/nav_my_files"
-            android:title="@string/my_files" />
-        <item
             android:id="@+id/nav_activity_logs"
             android:title="@string/activity_logs" />
         <item

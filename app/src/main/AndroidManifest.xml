@@ -27,6 +27,10 @@
         <activity android:name=".ui.auth.RegisterActivity"/>
         <activity android:name=".ui.admin.AdminHomeActivity"/>
         <activity android:name=".ui.user.UserHomeActivity"/>
+        <activity android:name=".ui.encryption.EncryptFileActivity"/>
+        <activity android:name=".ui.encryption.DecryptFileActivity"/>
+
+
     </application>
 
 </manifest>
