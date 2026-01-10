@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_encrypt"
+            android:title="@string/encrypt_file" />
+        <item
+            android:id="@+id/nav_decrypt"
+            android:title="@string/decrypt_file" />
+        <item
+            android:id="@+id/nav_my_files"
+            android:title="@string/my_files" />
+        <item
+            android:id="@+id/nav_activity_logs"
+            android:title="@string/activity_logs" />
+        <item
+            android:id="@+id/nav_profile"
+            android:title="@string/profile" />
+    </group>
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:title="@string/logout" />
+        </menu>
+    </item>
+</menu>
+

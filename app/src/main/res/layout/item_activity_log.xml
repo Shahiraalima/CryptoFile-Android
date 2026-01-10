@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/action_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:text="🔒"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_marginEnd="12dp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/file_name_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="File encrypted successfully"
+            android:textSize="14sp"
+            android:textColor="#2c3e50"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/time_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Just now"
+            android:textSize="12sp"
+            android:textColor="#95a5a6" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/status_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_status_success"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Success"
+            android:textSize="12sp"
+            android:textColor="#2c3e50" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
