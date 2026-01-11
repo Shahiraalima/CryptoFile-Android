@@ -3,11 +3,14 @@ package com.example.cryptofile_android.ui.encryption;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -345,7 +348,30 @@ public class EncryptFileActivity extends AppCompatActivity {
                     long originalFileSize = tempInputFile.length();
                     String originalHash = calculateFileHash(tempInputFile);
 
-                    File outputFile = new File(getExternalFilesDir(null), fileName + ".enc");
+                    String encryptedFileName = fileName + ".enc";
+                    File outputFile;
+                    Uri outputUri = null;
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Downloads.DISPLAY_NAME, encryptedFileName);
+                        values.put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream");
+                        values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/CryptoFiles");
+
+                        outputUri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                        if (outputUri == null) {
+                            throw new Exception("Failed to create output file in Downloads");
+                        }
+                        outputFile = File.createTempFile("temp_enc_", ".enc", getCacheDir());
+                    } else {
+                        // Legacy method for Android 9 and below
+                        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                        File cryptoFilesDir = new File(downloadsDir, "CryptoFiles");
+                        if (!cryptoFilesDir.exists()) {
+                            cryptoFilesDir.mkdirs();
+                        }
+                        outputFile = new File(cryptoFilesDir, encryptedFileName);
+                    }
 
                     String fileStatus = fileDAO.checkFileExists(originalHash, userId).get();
                     boolean isReencryption = !"NOT_FOUND".equals(fileStatus);
@@ -376,6 +402,19 @@ public class EncryptFileActivity extends AppCompatActivity {
                                 statusLabel.setText("Encrypting " + fileName + " - " + percentage + "%");
                             })
                     );
+
+                    // Copy to MediaStore on Android 10+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && outputUri != null) {
+                        try (FileInputStream fis = new FileInputStream(outputFile);
+                             java.io.OutputStream os = getContentResolver().openOutputStream(outputUri)) {
+                            byte[] buffer = new byte[8192];
+                            int bytesRead;
+                            while ((bytesRead = fis.read(buffer)) != -1) {
+                                os.write(buffer, 0, bytesRead);
+                            }
+                            os.flush();
+                        }
+                    }
 
                     String encryptedHash = calculateFileHash(outputFile);
                     long encryptedFileSize = outputFile.length();
@@ -429,7 +468,7 @@ public class EncryptFileActivity extends AppCompatActivity {
                     cancelAllButton.setVisibility(View.GONE);
                     uploadCard.setEnabled(true);
 
-                    Toast.makeText(this, "Encryption completed!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Encryption completed! Files saved to Downloads/CryptoFiles", Toast.LENGTH_LONG).show();
 
                     filesListView.postDelayed(() -> {
                         selectedFileUris.clear();
