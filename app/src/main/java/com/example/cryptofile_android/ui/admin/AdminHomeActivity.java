@@ -116,26 +116,10 @@ public class AdminHomeActivity extends AppCompatActivity {
 
     private void handleLogout() {
         mAuth.signOut();
-
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_logout) {
-            handleLogout();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
 

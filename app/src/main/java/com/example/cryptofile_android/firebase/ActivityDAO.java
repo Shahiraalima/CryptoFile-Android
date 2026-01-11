@@ -82,7 +82,58 @@ public class ActivityDAO {
         return future;
     }
 
+    public CompletableFuture<List<ActivityLog>> getAllLogs() {
+        CompletableFuture<List<ActivityLog>> future = new CompletableFuture<>();
 
+        db.collection(COLLECTION_LOGS)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(1000) // Limit to recent 1000 logs
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<ActivityLog> logs = querySnapshot.toObjects(ActivityLog.class);
+                    future.complete(logs);
+                })
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<List<ActivityLog>> getAllLogsWithUserInfo() {
+        CompletableFuture<List<ActivityLog>> future = new CompletableFuture<>();
+
+        getAllLogs().thenAccept(logs -> {
+            if (logs.isEmpty()) {
+                future.complete(logs);
+                return;
+            }
+
+            UserDAO userDAO = UserDAO.getInstance();
+            CompletableFuture<Void>[] userFutures = new CompletableFuture[logs.size()];
+
+            for (int i = 0; i < logs.size(); i++) {
+                ActivityLog log = logs.get(i);
+                int finalI = i;
+                userFutures[i] = userDAO.getUserById(log.getUserId())
+                        .thenAccept(user -> {
+                            if (user != null) {
+                                log.setUsername(user.getUsername());
+                            }
+                        });
+            }
+
+            CompletableFuture.allOf(userFutures)
+                    .thenRun(() -> future.complete(logs))
+                    .exceptionally(e -> {
+                        future.completeExceptionally(e);
+                        return null;
+                    });
+        }).exceptionally(e -> {
+            future.completeExceptionally(e);
+            return null;
+        });
+
+        return future;
+    }
 
 
 

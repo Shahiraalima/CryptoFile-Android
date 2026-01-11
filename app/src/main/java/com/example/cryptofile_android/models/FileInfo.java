@@ -12,6 +12,7 @@ public class FileInfo {
     private String originalFileName;
     private long originalFileSize;
     private String originalFileHash;
+    private String username;
 
     private String newFileName;
     private long newFileSize;
@@ -110,5 +111,22 @@ public class FileInfo {
 
     public void setDecryptedAt(Date decryptedAt) {
         this.decryptedAt = decryptedAt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Date getModifiedAt() {
+        if ("COMPLETED".equals(status) && encryptedAt != null) {
+            return encryptedAt;
+        } else if ("DECRYPTED".equals(status) && decryptedAt != null) {
+            return decryptedAt;
+        }
+        return null;
     }
 }

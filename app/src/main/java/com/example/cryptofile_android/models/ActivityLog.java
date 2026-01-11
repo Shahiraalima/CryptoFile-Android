@@ -17,6 +17,8 @@ public class ActivityLog {
     @ServerTimestamp
     private Date timestamp;
 
+    private String username;
+
     public ActivityLog() {
     }
 
@@ -92,5 +94,13 @@ public class ActivityLog {
 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

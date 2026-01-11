@@ -2,7 +2,9 @@ package com.example.cryptofile_android.firebase;
 
 import com.example.cryptofile_android.models.FileInfo;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class FileDAO {
@@ -143,6 +145,96 @@ public class FileDAO {
                         future.completeExceptionally(new Exception("File not found for decryption"));
                     }
                 })
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<List<FileInfo>> getAllFilesWithUserInfo() {
+        CompletableFuture<List<FileInfo>> future = new CompletableFuture<>();
+
+        getAllFiles().thenAccept(files -> {
+            if (files.isEmpty()) {
+                future.complete(files);
+                return;
+            }
+
+            UserDAO userDAO = UserDAO.getInstance();
+            CompletableFuture<Void>[] userFutures = new CompletableFuture[files.size()];
+
+            for (int i = 0; i < files.size(); i++) {
+                FileInfo file = files.get(i);
+                int finalI = i;
+                userFutures[i] = userDAO.getUserById(file.getUserId())
+                        .thenAccept(user -> {
+                            if (user != null) {
+                                file.setUsername(user.getUsername());
+                            }
+                        });
+            }
+
+            CompletableFuture.allOf(userFutures)
+                    .thenRun(() -> future.complete(files))
+                    .exceptionally(e -> {
+                        future.completeExceptionally(e);
+                        return null;
+                    });
+        }).exceptionally(e -> {
+            future.completeExceptionally(e);
+            return null;
+        });
+
+        return future;
+    }
+
+    public CompletableFuture<List<FileInfo>> getAllFiles() {
+        CompletableFuture<List<FileInfo>> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_FILES)
+                .orderBy("encryptedAt", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<FileInfo> files = querySnapshot.toObjects(FileInfo.class);
+                    future.complete(files);
+                })
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<Integer> getTotalFilesCount() {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_FILES)
+                .get()
+                .addOnSuccessListener(querySnapshot ->
+                        future.complete(querySnapshot.size()))
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<Integer> getFilesCountByStatus(String status) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_FILES)
+                .whereEqualTo("status", status)
+                .get()
+                .addOnSuccessListener(querySnapshot ->
+                        future.complete(querySnapshot.size()))
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<Integer> getFilesCountByUserId(String userId) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_FILES)
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(querySnapshot ->
+                        future.complete(querySnapshot.size()))
                 .addOnFailureListener(future::completeExceptionally);
 
         return future;
