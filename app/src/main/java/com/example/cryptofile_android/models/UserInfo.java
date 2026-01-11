@@ -17,7 +17,6 @@ public class UserInfo {
     private Date createdAt;
     private boolean active;
 
-    // Empty constructor required for Firestore
     public UserInfo() {
     }
 

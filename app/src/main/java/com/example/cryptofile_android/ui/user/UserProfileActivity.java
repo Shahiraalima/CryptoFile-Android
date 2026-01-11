@@ -190,7 +190,11 @@ public class UserProfileActivity extends AppCompatActivity {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                userDAO.updateUserInfo(userId, newFullName, newEmail).get();
+                UserInfo userInfo = new UserInfo();
+                userInfo.setUserId(userId);
+                userInfo.setFullName(newFullName);
+                userInfo.setEmail(newEmail);
+                userDAO.updateUserInfo(userInfo).get();
 
                 runOnUiThread(() -> {
                     originalFullName = newFullName;

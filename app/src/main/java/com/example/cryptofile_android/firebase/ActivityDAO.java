@@ -12,7 +12,7 @@ public class ActivityDAO {
     private final FirebaseFirestore db;
     private static final String COLLECTION_LOGS = "activity_logs";
 
-    private ActivityDAO() {
+    public ActivityDAO() {
         db = FirebaseFirestore.getInstance();
     }
 

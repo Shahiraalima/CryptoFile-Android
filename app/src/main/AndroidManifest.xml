@@ -31,6 +31,9 @@
         <activity android:name=".ui.encryption.DecryptFileActivity"/>
         <activity android:name=".ui.user.UserProfileActivity"/>
         <activity android:name=".ui.user.UserActivityLogsActivity"/>
+        <activity android:name=".ui.admin.AdminUserManagementActivity"/>
+
+
     </application>
 
 </manifest>

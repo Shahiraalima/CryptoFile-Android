@@ -2,7 +2,9 @@ package com.example.cryptofile_android.firebase;
 
 import com.example.cryptofile_android.models.UserInfo;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class UserDAO {
@@ -10,7 +12,7 @@ public class UserDAO {
     private final FirebaseFirestore db;
     private static final String COLLECTION_USERS = "users";
 
-    private UserDAO() {
+    public UserDAO() {
         db = FirebaseFirestore.getInstance();
     }
 
@@ -43,15 +45,15 @@ public class UserDAO {
 
     public CompletableFuture<Void> registerUser(UserInfo user) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-
+        user.setActive(true);
         db.collection(COLLECTION_USERS)
-                .document(user.getUserId())
-                .set(user)
+                .add(user)
                 .addOnSuccessListener(aVoid -> future.complete(null))
                 .addOnFailureListener(future::completeExceptionally);
 
         return future;
     }
+
 
     public CompletableFuture<Boolean> isUsernameTaken(String username) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -86,12 +88,42 @@ public class UserDAO {
         return future;
     }
 
-    public CompletableFuture<Void> updateUserInfo(String userId, String fullName, String email) {
+    public CompletableFuture<Void> updateUserInfo(UserInfo user) {
+        String userId = user.getUserId();
+        String fullName = user.getFullName();
+        String email = user.getEmail();
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         db.collection(COLLECTION_USERS)
                 .document(userId)
                 .update("fullName", fullName, "email", email)
+                .addOnSuccessListener(aVoid -> future.complete(null))
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<List<UserInfo>> getAllUsers() {
+        CompletableFuture<List<UserInfo>> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_USERS)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<UserInfo> users = querySnapshot.toObjects(UserInfo.class);
+                    future.complete(users);
+                })
+                .addOnFailureListener(future::completeExceptionally);
+
+        return future;
+    }
+
+    public CompletableFuture<Void> deleteUser(String userId) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        db.collection(COLLECTION_USERS)
+                .document(userId)
+                .delete()
                 .addOnSuccessListener(aVoid -> future.complete(null))
                 .addOnFailureListener(future::completeExceptionally);
 

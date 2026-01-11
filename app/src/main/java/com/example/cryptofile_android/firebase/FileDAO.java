@@ -10,7 +10,7 @@ public class FileDAO {
     private final FirebaseFirestore db;
     private static final String COLLECTION_FILES = "files";
 
-    private FileDAO() {
+    public FileDAO() {
         db = FirebaseFirestore.getInstance();
     }
 

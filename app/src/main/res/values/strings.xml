@@ -57,5 +57,10 @@
     <string name="registration_failed">Registration failed</string>
     <string name="encryption_failed">Encryption failed</string>
     <string name="decryption_failed">Decryption failed</string>
+
+    <string-array name="user_roles">
+        <item>User</item>
+        <item>Admin</item>
+    </string-array>
 </resources>
 
